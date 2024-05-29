@@ -1,13 +1,13 @@
 import torch
-import torchaudio
+# import torchaudio
 import numpy as np
-import scipy
-import youtube_dl
+# import scipy
+# import youtube_dl
 import stempeg
 import os
-from IPython.display import Audio, display
+# from IPython.display import Audio, display
 from openunmix import predict
-from IPython.display import HTML
+# from IPython.display import HTML
 from torch import nn, optim
 from transformers import BertModel, BertTokenizer, AdamW, get_linear_schedule_with_warmup
 import textwrap
@@ -20,7 +20,20 @@ import soundfile as sf
 # ----------------------------------------------------------------------------------------------------------
 # Entrada
 
-audio_path = "Dataset de Prueba/1. Calle 13   Latinoamérica.mp3"
+audio_path = "Dataset de Prueba/Te quiero   Barney Latinoamérica.wav"
+
+# Apta = Juan Gabriel - Querida ft Juanes
+# Apta = Paty Cantú - Conocerte
+# No apta = PXNDX - Narcisista por excelencia
+# No apta = SHAKIRA - BZRP Music Sessions 53
+# No apta = Bad Bunny - Tití Me Pregunto
+# Apta = Café Tacvba - Como Te Extraño mi Amor
+# No apta = Darell - Lollipop
+# Apta = La Factoria - Perdoname ft Eddy Lover.mp3
+# Apta = Camilo Sesto - Perdóname
+# Apta = Barney - Si estás feliz y lo sabes
+# Apta = Barney - Te quiero
+
 # ----------------------------------------------------------------------------------------------------------
 
 use_cuda = torch.cuda.is_available()

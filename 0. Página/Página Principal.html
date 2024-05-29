@@ -1,27 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detección de Música no Apta para Niños</title>
     <link rel="stylesheet" href="Página Principal_Estilos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
-    <div class="todo">
-        <div class="titulo">Detección de Música no Apta para Niños</div>
-        <div class="info">
-            <div class="info__izq">
-                <div class="info__izq__titulo">Introduzca la letra de la canción:</div>
-                <div class="info__izq__input">
-                    <textarea id="inputText" class="info__izq__input__elemento" rows="10" cols="50"></textarea>
-                </div>
-                <div class="info__izq__aceptar" onclick="predictGenre()">Botón</div>
-            </div>
-            <div class="info__der">
-                <div class="info__der__titulo">Resultado</div>
-                <div class="info__der__output" id="outputText">output</div>
-            </div>
-        </div>
+    <div class="container">
+        <header class="header">
+            <h1>Detección de Música no Apta para Niños</h1>
+        </header>
+        <main class="main-content">
+            <section class="input-section">
+                <h2>Introduzca la letra de la canción:</h2>
+                <textarea id="inputText" rows="10" cols="50" placeholder="Escriba la letra aquí..."></textarea>
+                <button onclick="predictGenre()"><i class="fas fa-paper-plane"></i> Enviar</button>
+            </section>
+            <section class="output-section">
+                <h2>Resultado</h2>
+                <div id="outputText" class="output">Esperando predicción...</div>
+            </section>
+        </main>
     </div>
 
     <script>

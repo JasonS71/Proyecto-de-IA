@@ -10,7 +10,7 @@ from transformers import BertModel, BertTokenizer, logging as transformers_loggi
 from pydub import AudioSegment
 import whisper
 import soundfile as sf
-import textwrap
+# import textwrap
 
 app = Flask(__name__)
 CORS(app)

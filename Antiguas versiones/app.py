@@ -1,17 +1,19 @@
 from flask import Flask, request, jsonify
 import torch
 from torch import nn
-from transformers import BertModel, BertTokenizer
+from transformers import BertModel, BertTokenizer, logging as transformers_logging
 import os
 from flask_cors import CORS
+
 
 
 app = Flask(__name__)
 CORS(app)
 
 # Configuración del modelo y el tokenizador
-PRE_TRAINED_MODEL_NAME = 'ignacio-ave/BETO-nlp-sentiment-analysis-spanish'
-path_checkpoint = "Checkpoint/modelo_BETO_ultimo_checkpoint_state_dict.pth"
+PRE_TRAINED_MODEL_NAME = 'dccuchile/bert-base-spanish-wwm-uncased'
+# PRE_TRAINED_MODEL_NAME = 'ignacio-ave/BETO-nlp-sentiment-analysis-spanish'
+path_checkpoint = "Checkpoint/modelo_BETO_ultimo_checkpoint_state_dict_v3.pth"
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 category_mapping = {
@@ -35,9 +37,10 @@ class BETOMusicForKidsClassifier(nn.Module):
         drop_output = self.drop(pooled_output)
         output = self.linear(drop_output)
         return output
-
+    
 # Inicializa el modelo
 n_classes = len(category_mapping)
+transformers_logging.set_verbosity_error()
 model = BETOMusicForKidsClassifier(n_classes)
 
 # Cargar el state_dict

@@ -18,9 +18,14 @@ import soundfile as sf
 
 
 # ----------------------------------------------------------------------------------------------------------
+import time
+
+start_time = time.time()
+
+# ----------------------------------------------------------------------------------------------------------
 # Entrada
 
-audio_path = "Dataset de Prueba/Te quiero   Barney Latinoamérica.wav"
+audio_path = "Dataset de Prueba/1 Paty Cantú   Conocerte.wav"
 
 # Apta = Juan Gabriel - Querida ft Juanes
 # Apta = Paty Cantú - Conocerte
@@ -148,7 +153,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 path_checkpoint = "Checkpoint/modelo_BETO_ultimo_checkpoint_state_dict.pth"
 
-PRE_TRAINED_MODEL_NAME = 'ignacio-ave/BETO-nlp-sentiment-analysis-spanish'
+PRE_TRAINED_MODEL_NAME = 'dccuchile/bert-base-spanish-wwm-uncased'
 
 category_mapping = {
     '0': 0,
@@ -220,3 +225,6 @@ for line in wrapped_lines:
 # Realiza la predicción de género utilizando el texto transcribido
 genre = predict_genre(transcribed_text, model, tokenizer, device)
 print(f"\n Predicción (0 = No Apta, 1 = Apta): {genre}")
+
+end_time = time.time()
+print(f"Tiempo de ejecución: {end_time - start_time} segundos")

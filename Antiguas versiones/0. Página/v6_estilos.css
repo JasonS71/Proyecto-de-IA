@@ -1,0 +1,369 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body, html {
+    height: 100%;
+    background-color: #f4f4f9;
+    font-family: Arial, sans-serif;
+}
+
+.todo {
+    padding: 30px;
+    height: 650px;
+}
+
+.cabeza {
+    width: 100%;
+    height: 80px;
+    text-align: center;
+    line-height: 80px;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 2em;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cuerpo {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.cuerpo__izq {
+    height: 100%;
+    flex: 1;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+}
+
+.cuerpo__izq__titulo {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #333;
+}
+
+.cuerpo__izq__input {
+    width: 100%;
+    height: 100%;
+    background-color: #f0f0f0;
+    border: 2px dashed #4CAF50;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    padding: 10px;
+    gap: 10px;
+}
+
+.cuerpo__izq__input input[type="file"] {
+    display: none;
+}
+
+.cuerpo__izq__input label {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.cuerpo__izq__input label:hover {
+    background-color: #45a049;
+}
+
+.cuerpo__izq__input__file-list {
+    width: 100%;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+    max-height: 350px;
+}
+
+.cuerpo__izq__input__file-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 10px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 5px;
+    opacity: 0;
+    animation: fadeIn 0.5s forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+.cuerpo__izq__input__file-list li button {
+    background-color: #ff4c4c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 5px 10px;
+    transition: background-color 0.3s;
+}
+
+.cuerpo__izq__input__file-list li button:hover {
+    background-color: #e43d3d;
+}
+
+.cuerpo__izq__boton {
+    width: 150px;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    align-self: flex-end;
+    transition: background-color 0.3s;
+}
+
+.cuerpo__izq__boton:hover {
+    background-color: #45a049;
+}
+
+.cuerpo__der {
+    flex: 2;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.cuerpo__der__titulo {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #333;
+}
+
+.cuerpo__der__medio {
+    height: 375px;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.cuerpo__der__medio__reproductor {
+    height: 100%;
+    padding: 10px;
+    background-color: #ffffff;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow-y: auto;
+}
+
+.cuerpo__der__medio__reproductor__output {
+    padding: 15px;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    color: #333;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.cuerpo__der__medio__reproductor__output:hover {
+    transform: scale(1.05);
+}
+
+.cuerpo__der__medio__botones {
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cuerpo__der__medio__botones__boton {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    text-align: center;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.cuerpo__der__medio__botones__boton:hover {
+    background-color: #45a049;
+}
+
+.cuerpo__der__reproduccion__info {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.cuerpo__der__reproduccion__info span {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.cuerpo__der__botonesReproductor {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.cuerpo__der__botonesReproductor button {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 18px;
+}
+
+.cuerpo__der__botonesReproductor button:hover {
+    background-color: #45a049;
+}
+
+.cuerpo__der__medio__reproductor__output button.eliminar {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: #ff4c4c;
+    font-size: 1.2em;
+    transition: transform 0.3s, color 0.3s;
+}
+
+.cuerpo__der__medio__reproductor__output button.eliminar:hover {
+    color: #e43d3d;
+    transform: rotate(20deg);
+}
+
+.cuerpo__der__medio__reproductor__output.apta {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.cuerpo__der__medio__reproductor__output.no-apta {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.cuerpo__der__medio__reproductor__output .play-icon {
+    margin-right: 10px;
+    font-size: 1.2em;
+    color: #155724;
+}
+
+.barra-reproduccion {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+#progreso-cancion {
+    flex-grow: 1;
+    cursor: pointer;
+}
+
+#tiempo-actual, #duracion-total {
+    width: 50px;
+    text-align: center;
+}
+
+.play.active, .pause.active, .stop.active, .next.active, .prev.active {
+    animation: buttonActive 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes buttonActive {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(1.1);
+    }
+}
+
+.shuffle.active, .repeat.active {
+    animation: modeActive 1s ease-in-out infinite alternate;
+}
+
+@keyframes modeActive {
+    0% {
+        color: #4CAF50;
+        transform: rotate(0deg);
+    }
+    100% {
+        color: #45a049;
+        transform: rotate(360deg);
+    }
+}
+
+/* Añadir estilos para los botones de reproducción activos */
+.cuerpo__der__botonesReproductor button.active {
+    background-color: #ff9800; /* Cambiar color cuando el botón está activo */
+    color: white;
+    animation: buttonActive 0.5s ease-in-out infinite alternate;
+}
+
+/* Añadir estilos para los botones de aleatorio y repetir activos */
+.shuffle.active, .repeat.active {
+    background-color: #2196f3; /* Cambiar color cuando el botón está activo */
+    color: white;
+    animation: modeActive 1s ease-in-out infinite alternate;
+}
+
+/* Añadir animación de presionar botón */
+.cuerpo__der__botonesReproductor button:active {
+    transform: scale(0.9);
+}
+
+/* Añadir animación de botón activo */
+@keyframes buttonActive {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(1.1);
+    }
+}
+
+/* Añadir animación de modo activo */
+@keyframes modeActive {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

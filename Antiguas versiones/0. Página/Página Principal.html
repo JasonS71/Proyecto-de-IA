@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detección de Música no Apta para Niños</title>
+    <link rel="stylesheet" href="Página Principal_Estilos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <style>
+        .progress-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            position: relative;
+        }
+
+        .progress-bar::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #ccc;
+            z-index: 1;
+            transform: translateY(-50%);
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .progress-step .dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ccc;
+            margin-bottom: 5px;
+        }
+
+        .progress-step.active .dot {
+            background: #4caf50;
+        }
+
+        .progress-step.completed .dot {
+            background: #4caf50;
+        }
+
+        .progress-step span {
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Detección de Música no Apta para Niños</h1>
+        </header>
+        <main class="main-content">
+            <section class="input-section">
+                <h2>Suba un archivo de audio:</h2>
+                <input type="file" id="audioFile" accept="audio/*">
+                <button onclick="uploadAudio()"><i class="fas fa-upload"></i> Subir</button>
+            </section>
+            <section class="output-section">
+                <h2>Progreso</h2>
+                <div id="currentStatus" class="status">Estado: Esperando...</div> <!-- Añadido para mostrar el estado actual -->
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-step" id="step1">
+                            <div class="dot"></div>
+                            <span>Subiendo Archivo</span>
+                        </div>
+                        <div class="progress-step" id="step2">
+                            <div class="dot"></div>
+                            <span>Separando Voz</span>
+                        </div>
+                        <div class="progress-step" id="step3">
+                            <div class="dot"></div>
+                            <span>Transcribiendo Letra</span>
+                        </div>
+                        <div class="progress-step" id="step4">
+                            <div class="dot"></div>
+                            <span>Completado</span>
+                        </div>
+                    </div>
+                </div>
+                <h2>Resultado</h2>
+                <div id="outputText" class="output">Esperando predicción...</div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const socket = io('http://127.0.0.1:5000');
+        const outputText = document.getElementById('outputText');
+        const currentStatus = document.getElementById('currentStatus'); // Añadido para actualizar el estado actual
+        let sid = null;
+
+        socket.on('connect', () => {
+            sid = socket.id;
+        });
+
+        socket.on('status', (data) => {
+            currentStatus.textContent = `Estado: ${data.message}`; // Actualiza el estado actual encima de la barra de progreso
+            updateProgress(data.message);
+        });
+
+        function uploadAudio() {
+            const audioFile = document.getElementById('audioFile').files[0];
+
+            if (!audioFile) {
+                alert('Por favor, seleccione un archivo de audio.');
+                return;
+            }
+
+            resetProgress(); // Reset progress before starting a new upload
+            outputText.textContent = 'Esperando predicción...'; // Reset output text
+            outputText.style.color = 'black';
+
+            const formData = new FormData();
+            formData.append('audio', audioFile);
+
+            fetch(`http://127.0.0.1:5000/classify?sid=${sid}`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const prediction = data['Predicción (0 = No Apta, 1 = Apta)'];
+                if (prediction === '0') {
+                    outputText.textContent = 'No Apta';
+                    outputText.style.color = 'red';
+                } else if (prediction === '1') {
+                    outputText.textContent = 'Apta';
+                    outputText.style.color = 'green';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                outputText.textContent = 'Error al realizar la predicción';
+                outputText.style.color = 'black';
+            });
+        }
+
+        function resetProgress() {
+            const steps = [
+                'step1',
+                'step2',
+                'step3',
+                'step4'
+            ];
+
+            steps.forEach((step) => {
+                const stepElement = document.getElementById(step);
+                stepElement.classList.remove('active', 'completed');
+            });
+        }
+
+        function updateProgress(message) {
+            const steps = [
+                'Subiendo archivo',
+                'Separando voz',
+                'Transcribiendo letra',
+                'Completado'
+            ];
+
+            steps.forEach((step, index) => {
+                const stepElement = document.getElementById(`step${index + 1}`);
+                if (message.toLowerCase().includes(step.toLowerCase())) {
+                    stepElement.classList.add('active');
+                    if (index > 0) {
+                        steps.slice(0, index).forEach((completedStep, completedIndex) => {
+                            document.getElementById(`step${completedIndex + 1}`).classList.add('completed');
+                        });
+                    }
+                } else {
+                    stepElement.classList.remove('active');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

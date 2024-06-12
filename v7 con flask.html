@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="v7_estilos.css">
+    <style>
+        /* Aquí van tus estilos CSS */
+        .play.active,
+        .pause.active,
+        .stop.active,
+        .next.active,
+        .prev.active {
+            animation: buttonActive 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes buttonActive {
+            0% {
+                transform: scale(1);
+            }
+
+            100% {
+                transform: scale(1.1);
+            }
+        }
+
+        .shuffle.active,
+        .repeat.active {
+            animation: modeActive 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes modeActive {
+            0% {
+                color: #4CAF50;
+                transform: rotate(0deg);
+            }
+
+            100% {
+                color: #45a049;
+                transform: rotate(360deg);
+            }
+        }
+
+        .play.active {
+            background-color: green;
+            color: white;
+        }
+
+        .pause.active {
+            background-color: red;
+            color: white;
+        }
+
+        .current-song {
+            background-color: yellow;
+            font-weight: bold;
+            border: 2px solid red;
+            color: black;
+            font-size: 1.2em;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .botones-container {
+            display: flex;
+            justify-content: center;
+            margin-left: 230px;
+            flex-grow: 1;
+            gap: 7px;
+        }
+
+        .cuerpo__der__botonesReproductor {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            /* Justificación en el espacio entre los elementos */
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            justify-content: end;
+        }
+
+        .volume-control input[type="range"] {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="todo">
+        <div class="cabeza">
+            Detección de Música no Apta para Niños
+        </div>
+        <div class="cuerpo">
+            <div class="cuerpo__izq">
+                <div class="cuerpo__izq__titulo">Suba su música aquí</div>
+                <div class="cuerpo__izq__input" id="drop-area">
+                    <label for="file-upload">Subir archivos</label>
+                    <input id="file-upload" type="file" accept="audio/*" multiple>
+                    <ul class="cuerpo__izq__input__file-list"></ul>
+                </div>
+                <div class="cuerpo__izq__boton" id="predecir-btn">Predecir</div>
+            </div>
+            <div class="cuerpo__der">
+                <div class="cuerpo__der__titulo">Resultados de la predicción</div>
+                <div class="cuerpo__der__medio">
+                    <div class="cuerpo__der__medio__reproductor"></div>
+                    <div class="cuerpo__der__medio__botones">
+                        <div class="cuerpo__der__medio__botones__boton" id="reproducir-aptas">
+                            Reproducir Canciones Aptas
+                        </div>
+                        <div class="cuerpo__der__medio__botones__boton" id="eliminar-no-aptas">
+                            Eliminar Canciones &nbsp&nbsp&nbsp&nbsp&nbsp&nbspno Aptas
+                        </div>
+                    </div>
+                </div>
+                <div class="cuerpo__der__reproduccion">
+                    <div class="cuerpo__der__reproduccion__info">
+                        <span id="nombre-cancion"></span>
+                        <div class="barra-reproduccion">
+                            <span id="tiempo-actual">0:00</span>
+                            <input type="range" id="progreso-cancion" value="0" max="100">
+                            <span id="duracion-total">0:00</span>
+                        </div>
+                    </div>
+                    <div class="cuerpo__der__botonesReproductor">
+                        <div class="botones-container">
+                            <button class="shuffle"><i class="fas fa-random"></i></button>
+                            <button class="prev"><i class="fas fa-backward"></i></button>
+                            <button class="stop"><i class="fas fa-stop"></i></button>
+                            <button class="pause"><i class="fas fa-pause"></i></button>
+                            <button class="play"><i class="fas fa-play"></i></button>
+                            <button class="next"><i class="fas fa-forward"></i></button>
+                            <button class="repeat"><i class="fas fa-redo"></i></button>
+                        </div>
+                        <div class="volume-control">
+                            <i class="fas fa-volume-up"></i>
+                            <input type="range" id="control-volumen" min="0" max="1" step="0.01" value="1">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('file-upload');
+        const fileList = document.querySelector('.cuerpo__izq__input__file-list');
+        const dropArea = document.getElementById('drop-area');
+        const eliminarNoAptasBtn = document.getElementById('eliminar-no-aptas');
+        const nombreCancion = document.getElementById('nombre-cancion');
+        const predecirBtn = document.getElementById('predecir-btn');
+        const reproductor = document.querySelector('.cuerpo__der__medio__reproductor');
+        const tiempoActual = document.getElementById('tiempo-actual');
+        const duracionTotal = document.getElementById('duracion-total');
+        const progresoCancion = document.getElementById('progreso-cancion');
+        const playButton = document.querySelector('.play');
+        const pauseButton = document.querySelector('.pause');
+        const controlVolumen = document.getElementById('control-volumen');
+        let audio = new Audio();
+        let cancionesAptas = [];
+        let indiceActual = 0;
+        let isShuffle = false;
+        let isRepeat = false;
+    
+        fileInput.addEventListener('change', () => {
+            handleFiles(fileInput.files);
+        });
+    
+        dropArea.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            dropArea.classList.add('drag-over');
+        });
+    
+        dropArea.addEventListener('dragleave', () => {
+            dropArea.classList.remove('drag-over');
+        });
+    
+        dropArea.addEventListener('drop', (event) => {
+            event.preventDefault();
+            dropArea.classList.remove('drag-over');
+            handleFiles(event.dataTransfer.files);
+        });
+    
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                const listItem = document.createElement('li');
+                listItem.textContent = file.name;
+                listItem.dataset.file = URL.createObjectURL(file);
+                listItem.dataset.fileName = file.name; // Guardar el nombre del archivo
+                const removeButton = document.createElement('button');
+                removeButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                removeButton.classList.add('eliminar');
+                removeButton.addEventListener('click', () => {
+                    listItem.remove();
+                });
+                listItem.appendChild(removeButton);
+                fileList.appendChild(listItem);
+            });
+        }
+    
+        predecirBtn.addEventListener('click', () => {
+            const archivos = Array.from(fileList.children);
+            procesarArchivosUnoPorUno(archivos, 0);
+        });
+    
+        function procesarArchivosUnoPorUno(archivos, index) {
+            if (index >= archivos.length) {
+                actualizarCancionesAptas();
+                return;
+            }
+    
+            const listItem = archivos[index];
+            const file = fileInput.files[Array.from(fileInput.files).findIndex(f => f.name === listItem.dataset.fileName)];
+            const formData = new FormData();
+            formData.append('audio', file);
+    
+            fetch('http://localhost:5000/classify', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultado = document.createElement('div');
+                resultado.classList.add('cuerpo__der__medio__reproductor__output');
+                if (data['Predicción (0 = No Apta, 1 = Apta)'] == '1') {
+                    resultado.classList.add('apta');
+                    const playIcon = document.createElement('i');
+                    playIcon.classList.add('fas', 'fa-play', 'play-icon');
+                    resultado.appendChild(playIcon);
+                } else {
+                    resultado.classList.add('no-apta');
+                }
+                resultado.dataset.file = listItem.dataset.file;
+                resultado.dataset.fileName = listItem.dataset.fileName;
+                resultado.appendChild(document.createTextNode(listItem.dataset.fileName));
+    
+                const removeButton = document.createElement('button');
+                removeButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                removeButton.classList.add('eliminar');
+                removeButton.addEventListener('click', () => {
+                    resultado.remove();
+                    actualizarCancionesAptas(); // Actualiza la lista de canciones aptas al eliminar
+                });
+                resultado.appendChild(removeButton);
+    
+                resultado.addEventListener('click', () => {
+                    if (resultado.classList.contains('apta')) {
+                        reproducirCancion(resultado.dataset.file, resultado.dataset.fileName, resultado);
+                    } else {
+                        alert('Esta canción no es apta para niños.');
+                    }
+                });
+    
+                reproductor.appendChild(resultado);
+                listItem.remove();
+    
+                // Procesar el siguiente archivo después de recibir la respuesta
+                procesarArchivosUnoPorUno(archivos, index + 1);
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    
+        eliminarNoAptasBtn.addEventListener('click', () => {
+            document.querySelectorAll('.cuerpo__der__medio__reproductor__output.no-apta').forEach(element => {
+                element.remove();
+            });
+        });
+    
+        document.getElementById('reproducir-aptas').addEventListener('click', () => {
+            actualizarCancionesAptas();
+            if (cancionesAptas.length > 0) {
+                indiceActual = 0;
+                reproducirCancion(cancionesAptas[indiceActual].file, cancionesAptas[indiceActual].fileName, document.querySelector(`.cuerpo__der__medio__reproductor__output[data-file="${cancionesAptas[indiceActual].file}"]`));
+            } else {
+                alert("No hay canciones aptas para reproducir.");
+            }
+        });
+    
+        function actualizarCancionesAptas() {
+            cancionesAptas = Array.from(document.querySelectorAll('.cuerpo__der__medio__reproductor__output.apta'))
+                .map(element => ({ file: element.dataset.file, fileName: element.dataset.fileName })); // Incluir fileName
+        }
+    
+        function reproducirCancion(fileUrl, fileName, element) {
+            audio.src = fileUrl;
+            nombreCancion.textContent = fileName; // Mostrar el nombre de la canción
+            progresoCancion.value = 0; // Inicializa la barra de progreso en 0
+            audio.play();
+    
+            document.querySelectorAll('.cuerpo__der__medio__reproductor__output').forEach(el => el.classList.remove('current-song'));
+            element.classList.add('current-song');
+    
+            // Actualizar el índice actual cuando se reproduce una canción manualmente
+            indiceActual = cancionesAptas.findIndex(cancion => cancion.file === fileUrl);
+    
+            audio.addEventListener('loadedmetadata', () => {
+                const duracion = audio.duration;
+                duracionTotal.textContent = formatTime(duracion);
+                progresoCancion.max = Math.floor(duracion);
+            });
+    
+            audio.addEventListener('timeupdate', () => {
+                const tiempoActualSegundos = audio.currentTime;
+                tiempoActual.textContent = formatTime(tiempoActualSegundos);
+                progresoCancion.value = Math.floor(tiempoActualSegundos);
+            });
+    
+            audio.addEventListener('ended', () => {
+                if (isRepeat) {
+                    audio.currentTime = 0;
+                    audio.play();
+                } else {
+                    reproducirSiguienteCancion();
+                }
+            });
+    
+            // Cambiar color de botones
+            playButton.classList.add('active');
+            pauseButton.classList.remove('active');
+        }
+    
+        function reproducirSiguienteCancion() {
+            if (isShuffle) {
+                indiceActual = Math.floor(Math.random() * cancionesAptas.length);
+            } else {
+                indiceActual = (indiceActual + 1) % cancionesAptas.length;
+            }
+            reproducirCancion(cancionesAptas[indiceActual].file, cancionesAptas[indiceActual].fileName, document.querySelector(`.cuerpo__der__medio__reproductor__output[data-file="${cancionesAptas[indiceActual].file}"]`));
+        }
+    
+        progresoCancion.addEventListener('input', () => {
+            audio.currentTime = progresoCancion.value;
+        });
+    
+        document.querySelector('.play').addEventListener('click', () => {
+            audio.play();
+            playButton.classList.add('active');
+            pauseButton.classList.remove('active');
+        });
+    
+        document.querySelector('.pause').addEventListener('click', () => {
+            audio.pause();
+            playButton.classList.remove('active');
+            pauseButton.classList.add('active');
+        });
+    
+        document.querySelector('.stop').addEventListener('click', () => {
+            audio.pause();
+            audio.currentTime = 0;
+            playButton.classList.remove('active');
+            pauseButton.classList.remove('active');
+        });
+    
+        document.querySelector('.next').addEventListener('click', () => {
+            reproducirSiguienteCancion();
+        });
+    
+        document.querySelector('.prev').addEventListener('click', () => {
+            indiceActual = (indiceActual - 1 + cancionesAptas.length) % cancionesAptas.length;
+            reproducirCancion(cancionesAptas[indiceActual].file, cancionesAptas[indiceActual].fileName, document.querySelector(`.cuerpo__der__medio__reproductor__output[data-file="${cancionesAptas[indiceActual].file}"]`));
+        });
+    
+        document.querySelector('.shuffle').addEventListener('click', () => {
+            isShuffle = !isShuffle;
+            document.querySelector('.shuffle').classList.toggle('active', isShuffle);
+        });
+    
+        document.querySelector('.repeat').addEventListener('click', () => {
+            isRepeat = !isRepeat;
+            document.querySelector('.repeat').classList.toggle('active', isRepeat);
+        });
+    
+        controlVolumen.addEventListener('input', () => {
+            audio.volume = controlVolumen.value;
+        });
+    
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+    </script>
+    
+</body>
+
+</html>
